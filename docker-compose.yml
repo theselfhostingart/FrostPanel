@@ -1,7 +1,7 @@
 version: '3'
 services:
   mysql:
-    image: mariadb:10.5.9
+    image: mariadb:10.6.17
     logging:
       driver: none
     command: ["--max-allowed-packet=512M"]
@@ -47,17 +47,18 @@ services:
     restart: always
     networks:
       - default
-  redis:
-    image: "redis:alpine"
+  keydb:
+    image: eqalpha/keydb:latest
+    container_name: keydb
+    command: keydb-server /etc/keydb/redis.conf --server-threads 2
     logging:
       driver: none
-    # command: redis-server --requirepass 8b405f60665e48f795752e534d93b722
     volumes:
-      - ./redis/data:/var/lib/redis
-      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
-    environment:
-      - REDIS_REPLICATION_MODE=master
-    restart: always
+      - ./keydb/data:/data
+      - ./keydb/redis.conf:/etc/keydb/redis.conf
+    ports:
+      - 6379:6379
+    restart: unless-stopped
     networks:
       - default
 networks:
